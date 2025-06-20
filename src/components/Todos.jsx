@@ -1,10 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import {removeTodo} from '../features/todo/todoSlice'
+import {removeTodo, updateTodo} from '../features/todo/todoSlice'
 
 function Todos() {
     const todos = useSelector(state => state.todos)
     const dispatch = useDispatch()
+
+    const [editId, setEditId] = useState(null)
+    const [editText, setEditText] = useState('')
+
+    const handleUpdate = (id) => {
+      if(editText && editText.trim().length > 0){
+        dispatch(updateTodo({id, text: editText}))
+        setEditId(null)
+        setEditText('')
+      }
+    }
+
+    
 
   return (
     <>
@@ -15,7 +28,40 @@ function Todos() {
             className="mt-4 flex justify-between items-center bg-zinc-800 px-4 py-2 rounded"
             key={todo.id}
           >
-            <div className='text-white'>{todo.text}</div>
+
+            {editId === todo.id ? (
+              <input 
+               className='bg-gray-700 text-white px-2 py-1 rounded mr-2 w-full'
+               type='text'
+               value={editText}
+               onChange={(e) => setEditText(e.target.value)}
+              />
+            )
+            : <div className='text-white'>{todo.text}</div> }
+           
+           <div className=''>
+            {editId===todo.id ? 
+             (<button
+              onClick={() => handleUpdate(todo.id)}
+              className="text-white bg-green-500 border-0 py-1 px-3 hover:bg-green-600 rounded"
+             >
+              Save
+             </button>)
+            : (<button
+            className='text-white bg-yellow-500 border-0 py-1 px-3 hover:bg-yellow-600 rounded'
+              onClick={() => {
+                setEditId(todo.id)
+                setEditText(todo.text)
+              }}
+            >
+              Edit
+            </button>) 
+            
+            }
+           </div>
+
+
+            
             <button
              onClick={() => dispatch(removeTodo(todo.id))}
               className="text-white bg-red-500 border-0 py-1 px-4 focus:outline-none hover:bg-red-600 rounded text-md"
